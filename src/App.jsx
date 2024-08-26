@@ -6,6 +6,7 @@ import { AuthProvider } from './utils/AuthContext'
 
 import Login from './pages/Login'
 import Room from './pages/Room'
+import Register from './pages/Register'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <AuthProvider>
       <Routes>
         <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
 
         <Route element={<PrivateRoutes />} >
           <Route path='/' element={<Room />} />

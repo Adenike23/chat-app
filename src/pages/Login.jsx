@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '../utils/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 const Login = () => {
-    const {user} = useAuth()
+    const { user, handleUserLogin } = useAuth()
     const navigate = useNavigate()
     
     const [credentials, setCredentials] = useState({
@@ -18,15 +18,13 @@ const Login = () => {
     }, [])
 
     const handleInputChange = (value, identifier) => {
-        setCredentials(prevValues => ({...prevValues, [identifier]: value}))
-        console.log(credentials);
-        
+        setCredentials(prevValues => ({...prevValues, [identifier]: value}))        
     }
     
   return (
     <div className='auth--container'>
       <div className='form--wrapper'>
-        <form action="">
+        <form onSubmit={(e) => handleUserLogin(e, credentials)}>
             <div className='field--wrapper'>
                 <label htmlFor="Email"></label>
                 <input type='email' name='email' placeholder='Enter your email...' value={credentials.email} onChange={(e) => handleInputChange(e.target.value, 'email')} required />
@@ -39,8 +37,10 @@ const Login = () => {
                 <input type='submit' value='Login' className='btn btn--lg btn--main' />
             </div>
         </form>
+      <p>Dont have an account yet? <Link to="/register">Register</Link></p>
       </div>
     </div>
+
   )
 }
 

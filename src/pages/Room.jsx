@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react'
 import client, { databases, DATABASE_ID, COLLECTION_ID_MESSAGES } from '../appwriteConfig'
 import {ID, Query} from 'appwrite'
 import {Trash2} from 'react-feather'
+import Header from '../components/Header'
+import { useAuth } from '../utils/AuthContext'
 
 const Room = () => {
-
   const [messages, setMessages] = useState([])
   const [messageBody, setMessageBody] = useState('')
+  const {user} = useAuth()
 
   useEffect(() => {
     getMessages()
@@ -35,8 +37,12 @@ const Room = () => {
     e.preventDefault()
 
     let payload = {
+      // we're passing the id, name and message body to the backend
+      user_id: user.$id,
+      username: user.name,
       body: messageBody
     }
+
   let response = await databases.createDocument(DATABASE_ID, COLLECTION_ID_MESSAGES,ID.unique(), payload)
     console.log('Created!', response);
     // setMessages(prevMessage => [response, ...prevMessage])
@@ -48,7 +54,7 @@ const Room = () => {
       Query.orderDesc('$createdAt'),
       Query.limit(20)
     ])
-    console.log('Response:', response);
+    // console.log('Response:', response);
     setMessages(response.documents)
     
   }
@@ -60,6 +66,7 @@ const Room = () => {
 
   return (
     <main className='container'>
+      <Header />
       <div className='room--container'>
 
         <form id="message--form" onSubmit={handleSubmit}>
@@ -76,9 +83,15 @@ const Room = () => {
         {messages.map(message => (
           <div key={message.$id} className='message--wrapper'>
             <div className='message--header'>
-              <small className='message-timestamp'>{new Date(message.$createdAt).toLocaleString()}</small>
+              <p>
+                {message?.username ? 
+                <span>{message?.username}</span> : 
+                <span>Anonymous user</span>}
+                
+                <small className='message-timestamp'>{new Date(message.$createdAt).toLocaleString()}</small>
+                </p>
 
-              <Trash2 onClick={() => deleteMessage(message.$id)} className='delete--btn' />
+              {message.$permissions.includes(`delete(\"user:${user.$id}\")`) && <Trash2 onClick={() => deleteMessage(message.$id)} className='delete--btn' />}
             </div>
             <div className='message--body'>
               <span>{message.body}</span>
